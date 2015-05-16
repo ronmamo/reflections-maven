@@ -1,26 +1,40 @@
 Reflections Maven plugin
 ------------------------
 
-Use this maven configuration in your pom file:
+#####This project is DISCONTINUED
+
+It is MUCH MUCH easier (and sane) to integrate Reflections into your Maven build using gmaven-plugin.
+That is, using a simple Groovy script to instantiate Reflections as you need, without the hassle of using (and writing) a Maven plugin...
+
+For example:
 
 ```xml
-<build>
-    <plugins>
-        <plugin>
+<plugin>
+    <groupId>org.codehaus.gmaven</groupId>
+    <artifactId>gmaven-plugin</artifactId>
+    <version>1.5</version>
+    <dependencies>
+        <dependency>
             <groupId>org.reflections</groupId>
-            <artifactId>reflections-maven</artifactId>
-            <version>the latest version...</version>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>reflections</goal>
-                    </goals>
-                    <phase>process-classes</phase>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
+            <artifactId>reflections</artifactId>
+            <version>0.9.10</version>
+        </dependency>
+    </dependencies>
+    <executions>
+        <execution>
+            <phase>generate-resources</phase>
+            <goals>
+                <goal>execute</goal>
+            </goals>
+            <configuration>
+                <source>
+                    new org.reflections.Reflections("f.q.n")
+                        .save("${project.build.outputDirectory}/META-INF/reflections/${project.artifactId}-reflections.xml")
+                </source>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
 ```
 
 Later on, when your project is bootstrapping you can let Reflections collect all those resources and re-create that metadata for you, 
@@ -30,5 +44,3 @@ making it available at runtime without re-scanning the classpath:
 Reflections reflections =
         isProduction() ? Reflections.collect() : new Reflections("your.package.here");
 ```
-
-*Check the [ReflectionsMojo](http://code.google.com/p/reflections/wiki/ReflectionsMojo) wiki page*
